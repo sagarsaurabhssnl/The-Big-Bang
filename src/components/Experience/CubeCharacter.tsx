@@ -1,12 +1,10 @@
-
 "use client";
 
-import { useRef, useState, useMemo, useEffect } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { MeshDistortMaterial, MeshTransmissionMaterial, Float } from "@react-three/drei";
 import { useStoryStore } from "@/lib/store";
-import { gsap } from "gsap";
 
 export function CubeCharacter() {
   const meshRef = useRef<THREE.Group>(null);
@@ -14,54 +12,92 @@ export function CubeCharacter() {
   const { currentChapter, progress, reducedMotion, setInteracting } = useStoryStore();
   
   const [hovered, setHovered] = useState(false);
-  const mousePos = useRef(new THREE.Vector2());
+  const [isPressed, setIsPressed] = useState(false);
+  const [spinBoost, setSpinBoost] = useState(0);
 
-  // Animation values for Lerping
-  const rotationOffset = useRef({ x: 0, y: 0 });
+  // Rotation logic
   const targetRotation = useRef({ x: 0, y: 0 });
+  const currentRotation = useRef({ x: 0, y: 0 });
+  const lastPointerPos = useRef({ x: 0, y: 0 });
 
   useFrame((state, delta) => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || !cubeRef.current) return;
 
-    // Base rotation
-    const rotationSpeed = reducedMotion ? 0.05 : 0.2;
-    meshRef.current.rotation.y += delta * rotationSpeed;
-    meshRef.current.rotation.x += delta * (rotationSpeed * 0.5);
+    // Base continuous rotation
+    const baseRotationSpeed = reducedMotion ? 0.05 : 0.2;
+    meshRef.current.rotation.y += delta * (baseRotationSpeed + spinBoost);
+    meshRef.current.rotation.x += delta * (baseRotationSpeed * 0.5);
 
-    // Interaction inertia
-    rotationOffset.current.x = THREE.MathUtils.lerp(rotationOffset.current.x, targetRotation.current.x, 0.1);
-    rotationOffset.current.y = THREE.MathUtils.lerp(rotationOffset.current.y, targetRotation.current.y, 0.1);
-    
-    meshRef.current.rotation.x += rotationOffset.current.y * 0.1;
-    meshRef.current.rotation.y += rotationOffset.current.x * 0.1;
-
-    // Scroll-driven effects
-    if (cubeRef.current) {
-      // Chapter 3: Pressure (Scale compression)
-      if (currentChapter === 2) {
-        const p = (progress - 2) * 6; // Local progress in chapter
-        const scaleZ = 1 - Math.sin(p * Math.PI) * 0.2;
-        cubeRef.current.scale.lerp(new THREE.Vector3(1.1, 1.1, scaleZ), 0.1);
-      } else {
-        cubeRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
-      }
+    // Smoothly decay spin boost (from double click)
+    if (spinBoost > 0) {
+      setSpinBoost(prev => Math.max(0, prev * 0.95 - 0.01));
     }
+
+    // Interactive inertia rotation
+    currentRotation.current.x = THREE.MathUtils.lerp(currentRotation.current.x, targetRotation.current.x, 0.1);
+    currentRotation.current.y = THREE.MathUtils.lerp(currentRotation.current.y, targetRotation.current.y, 0.1);
     
-    // Decay interaction
-    targetRotation.current.x *= 0.95;
-    targetRotation.current.y *= 0.95;
+    meshRef.current.rotation.x += currentRotation.current.y;
+    meshRef.current.rotation.y += currentRotation.current.x;
+
+    // Decaying the interaction offset
+    targetRotation.current.x *= 0.9;
+    targetRotation.current.y *= 0.9;
+
+    // Chapter 3: Pressure (Hold logic)
+    if (currentChapter === 2) {
+      const scaleTarget = isPressed ? 0.8 : 1.0;
+      cubeRef.current.scale.lerp(new THREE.Vector3(1.2, 1.2, scaleTarget), 0.1);
+    } else if (currentChapter === 3) {
+       // Chapter 4: Fracture (Distortion response)
+       cubeRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+    } else {
+      cubeRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+    }
   });
 
-  const handlePointerMove = (e: any) => {
-    if (reducedMotion) return;
-    const x = (e.clientX / window.innerWidth) * 2 - 1;
-    const y = -(e.clientY / window.innerHeight) * 2 + 1;
-    targetRotation.current.x = x * 0.5;
-    targetRotation.current.y = y * 0.5;
+  const handlePointerDown = (e: any) => {
+    setIsPressed(true);
     setInteracting(true);
+    lastPointerPos.current = { x: e.clientX, y: e.clientY };
   };
 
-  const handlePointerDown = () => setInteracting(true);
+  const handlePointerUp = () => {
+    setIsPressed(false);
+  };
+
+  const handlePointerMove = (e: any) => {
+    if (isPressed && !reducedMotion) {
+      const deltaX = (e.clientX - lastPointerPos.current.x) * 0.01;
+      const deltaY = (e.clientY - lastPointerPos.current.y) * 0.01;
+      
+      targetRotation.current.x = deltaX;
+      targetRotation.current.y = deltaY;
+      
+      lastPointerPos.current = { x: e.clientX, y: e.clientY };
+    }
+  };
+
+  const handlePointerOver = () => setHovered(true);
+  const handlePointerOut = () => {
+    setHovered(false);
+    setIsPressed(false);
+  };
+
+  const handleDoubleClick = () => {
+    if (currentChapter === 5) {
+      setSpinBoost(5); // Big celebratory spin for Artifact
+    }
+  };
+
+  const handleClick = () => {
+    if (currentChapter === 3) {
+      // Fracture interaction: temporary scale pop
+      if (cubeRef.current) {
+        cubeRef.current.scale.set(1.5, 1.5, 1.5);
+      }
+    }
+  };
 
   // Materials for different chapters
   const materials = useMemo(() => ({
@@ -74,10 +110,13 @@ export function CubeCharacter() {
   return (
     <group 
       ref={meshRef}
-      onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
+      onPointerUp={handlePointerUp}
+      onPointerMove={handlePointerMove}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+      onDoubleClick={handleDoubleClick}
+      onClick={handleClick}
     >
       <mesh ref={cubeRef} castShadow receiveShadow>
         <boxGeometry args={[2, 2, 2]} />
@@ -109,9 +148,9 @@ export function CubeCharacter() {
         {currentChapter === 5 && <primitive object={materials.artifact} attach="material" />}
       </mesh>
 
-      {/* Floating particles or accents */}
+      {/* Dynamic light following interactions */}
       <Float speed={5} rotationIntensity={2} floatIntensity={1}>
-        <pointLight position={[2, 2, 2]} intensity={hovered ? 20 : 10} color="#8CBBFF" />
+        <pointLight position={[2, 2, 2]} intensity={hovered ? 30 : 15} color="#8CBBFF" />
       </Float>
     </group>
   );

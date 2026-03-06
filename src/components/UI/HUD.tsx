@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useStoryStore } from "@/lib/store";
@@ -7,7 +6,7 @@ import { motion } from "framer-motion";
 import { EyeOff, Eye, Volume2, Info } from "lucide-react";
 
 export function HUD() {
-  const { currentChapter, progress, reducedMotion, toggleReducedMotion, isInteracting } = useStoryStore();
+  const { currentChapter, progress, reducedMotion, toggleReducedMotion } = useStoryStore();
   
   const currentChapterData = CHAPTERS[currentChapter];
 
@@ -33,21 +32,6 @@ export function HUD() {
           </button>
         </div>
       </div>
-
-      {/* Center Prompt Hint */}
-      {!isInteracting && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
-        >
-          <div className="flex flex-col items-center space-y-4">
-             <div className="w-px h-12 bg-gradient-to-b from-transparent via-primary to-transparent" />
-             <p className="text-xs font-black uppercase tracking-[0.3em] opacity-60">Drag to Interact</p>
-          </div>
-        </motion.div>
-      )}
 
       {/* Bottom Footer */}
       <div className="flex justify-between items-end">
