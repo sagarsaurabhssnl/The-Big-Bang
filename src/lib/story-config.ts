@@ -12,7 +12,7 @@ export const CHAPTERS: Chapter[] = [
     id: "origin",
     title: "Origin",
     narrative: [
-      "Before form, there was only quiet potential.",
+      "Before formation, there was only quiet potential.",
       "Not absence — but something waiting to begin.",
       "A shape rests at the edge of becoming."
     ],

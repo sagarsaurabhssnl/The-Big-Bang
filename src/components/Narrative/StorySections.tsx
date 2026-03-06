@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -38,6 +37,14 @@ export function StorySections() {
     return () => ctx.revert();
   }, [setChapter, setProgress]);
 
+  const handleTravel = (index: number) => {
+    const nextSectionTop = (index + 1) * window.innerHeight;
+    window.scrollTo({
+      top: nextSectionTop,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <div ref={containerRef} className="relative z-10 no-scrollbar pointer-events-none">
       {CHAPTERS.map((chapter, i) => (
@@ -59,8 +66,11 @@ export function StorySections() {
               </div>
               
               <div className="mt-12">
-                <button className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:scale-105 pointer-events-auto active:scale-95">
-                  Engage
+                <button 
+                  onClick={() => handleTravel(i)}
+                  className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-full text-xs font-black uppercase tracking-widest transition-all hover:scale-105 pointer-events-auto active:scale-95"
+                >
+                  TRAVEL
                 </button>
               </div>
             </motion.div>
@@ -84,7 +94,7 @@ export function StorySections() {
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="px-10 py-5 bg-black text-white border border-white/20 font-black rounded-xl hover:bg-white/10 transition-all pointer-events-auto active:scale-95 shadow-2xl"
             >
-              The end is the beginning
+              The End is the Beginning
             </button>
           </div>
         </motion.div>
