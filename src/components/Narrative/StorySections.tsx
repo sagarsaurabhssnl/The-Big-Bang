@@ -40,15 +40,16 @@ export function StorySections() {
   }, [setChapter, setProgress]);
 
   return (
-    <div ref={containerRef} className="relative z-10 no-scrollbar">
+    <div ref={containerRef} className="relative z-10 no-scrollbar pointer-events-none">
       {CHAPTERS.map((chapter, i) => (
-        <section key={chapter.id} className="narrative-panel">
-          <div className="max-w-3xl">
+        <section key={chapter.id} className="narrative-panel pointer-events-none">
+          <div className="max-w-3xl pointer-events-none">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.2 }}
               viewport={{ amount: 0.5 }}
+              className="pointer-events-none"
             >
               <span className="chapter-number">Experience {i + 1}</span>
               <h2 className="chapter-title">{chapter.title}</h2>
@@ -69,18 +70,18 @@ export function StorySections() {
       ))}
 
       {/* Footer / CTA Section */}
-      <section className="narrative-panel items-center text-center">
+      <section className="narrative-panel items-center text-center pointer-events-none">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="glass-panel max-w-2xl"
+          className="glass-panel max-w-2xl pointer-events-auto"
         >
           <h2 className="text-4xl font-black mb-6">Masterpiece Complete.</h2>
           <p className="text-muted-foreground mb-10">
             You've witnessed the evolution from a silent thought to a refined artifact. 
             The journey of creation is infinite.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-auto">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="px-10 py-5 bg-primary text-primary-foreground font-black rounded-xl hover:opacity-90 transition-opacity"

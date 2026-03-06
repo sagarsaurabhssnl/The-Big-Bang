@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRef, useState, useMemo } from "react";
@@ -29,7 +30,6 @@ export function CubeCharacter() {
     meshRef.current.rotation.x += delta * (baseSpeed * 0.3);
 
     // 2. Hyper-Responsive Inertia Decay
-    // Lower decay (0.95) makes it feel silkier, higher (0.85) makes it snappier
     const decay = isPressed ? 0.98 : 0.94;
     rotationInertia.current.x *= decay;
     rotationInertia.current.y *= decay;
@@ -89,9 +89,9 @@ export function CubeCharacter() {
 
   const handlePointerMove = (e: any) => {
     if (isPressed) {
-      // Significantly increased sensitivity (0.015 instead of 0.005)
-      const dx = (e.clientX - lastPointerPos.current.x) * 0.015;
-      const dy = (e.clientY - lastPointerPos.current.y) * 0.015;
+      // Significantly increased sensitivity
+      const dx = (e.clientX - lastPointerPos.current.x) * 0.025;
+      const dy = (e.clientY - lastPointerPos.current.y) * 0.025;
       
       rotationInertia.current.x = dx;
       rotationInertia.current.y = dy;
@@ -102,16 +102,16 @@ export function CubeCharacter() {
 
   const handleDoubleClick = () => {
     if (currentChapter === 5) {
-      setSpinBoost(12); // Maximum "Hero" spin
+      setSpinBoost(15); // Maximum "Hero" spin
     } else {
-      setSpinBoost(6);
+      setSpinBoost(8);
     }
   };
 
   const handleClick = () => {
     if (currentChapter === 3) {
       // Immediate "Impact" visual
-      springScale.current = 1.6;
+      springScale.current = 1.8;
     }
   };
 
@@ -156,7 +156,7 @@ export function CubeCharacter() {
       onClick={handleClick}
     >
       <mesh ref={cubeRef} castShadow receiveShadow>
-        <boxGeometry args={[2, 2, 2]} />
+        <boxGeometry args={[2.2, 2.2, 2.2]} />
         
         {currentChapter === 0 && <primitive object={materials.origin} attach="material" />}
         {currentChapter === 1 && <primitive object={materials.signal} attach="material" />}
@@ -189,7 +189,7 @@ export function CubeCharacter() {
       {/* Dynamic Interaction Light */}
       <pointLight 
         position={[4, 4, 4]} 
-        intensity={hovered ? 80 : 30} 
+        intensity={isPressed ? 120 : (hovered ? 80 : 30)} 
         color={isPressed ? "#FFFFFF" : "#8CBBFF"} 
       />
     </group>
