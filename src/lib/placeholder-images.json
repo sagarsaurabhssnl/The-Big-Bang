@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "feature-1",
+      "description": "3D Workspace",
+      "imageUrl": "https://picsum.photos/seed/scenecraft1/800/600",
+      "imageHint": "3d graphics"
+    },
+    {
+      "id": "feature-2",
+      "description": "Collaboration",
+      "imageUrl": "https://picsum.photos/seed/scenecraft2/800/600",
+      "imageHint": "digital art"
+    },
+    {
+      "id": "feature-3",
+      "description": "Performance",
+      "imageUrl": "https://picsum.photos/seed/scenecraft3/800/600",
+      "imageHint": "tech future"
+    }
+  ]
 }
