@@ -64,9 +64,10 @@ export function CubeCharacter() {
   useFrame((_, delta) => {
     if (!meshRef.current || !cubeRef.current) return;
 
-    const baseSpeed = reducedMotion ? 0.006 : 0.025 + currentChapter * 0.012;
+    // Increased base rotation velocity as requested
+    const baseSpeed = reducedMotion ? 0.02 : 0.08 + currentChapter * 0.03;
     meshRef.current.rotation.y += delta * (baseSpeed + spinBoostRef.current);
-    meshRef.current.rotation.x += delta * (baseSpeed * 0.18);
+    meshRef.current.rotation.x += delta * (baseSpeed * 0.25);
 
     const decay = draggingRef.current ? 0.94 : 0.88;
     rotationInertia.current.x *= decay;
@@ -77,8 +78,8 @@ export function CubeCharacter() {
 
     meshRef.current.rotation.x = THREE.MathUtils.clamp(
       meshRef.current.rotation.x,
-      -0.9,
-      0.9
+      -1.2,
+      1.2
     );
 
     if (spinBoostRef.current > 0) {
@@ -120,7 +121,6 @@ export function CubeCharacter() {
   
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
   
-    // Start drag immediately, but delay the "pressed" visual effect
     clearHoldTimer();
     holdTimerRef.current = setTimeout(() => {
       if (draggingRef.current && activePointerIdRef.current === e.pointerId) {
@@ -144,12 +144,11 @@ export function CubeCharacter() {
     const moveX = e.clientX - lastPointerPos.current.x;
     const moveY = e.clientY - lastPointerPos.current.y;
   
-    // If user is actively dragging, cancel the delayed hold-selection effect
     if (Math.abs(moveX) > 2 || Math.abs(moveY) > 2) {
       clearHoldTimer();
     }
   
-    const sensitivity = reducedMotion ? 0.0035 : 0.008;
+    const sensitivity = reducedMotion ? 0.005 : 0.012;
     const dx = moveX * sensitivity;
     const dy = moveY * sensitivity;
   
@@ -161,7 +160,7 @@ export function CubeCharacter() {
 
   const handleDoubleClick = (e: any) => {
     e.stopPropagation();
-    spinBoostRef.current = 10;
+    spinBoostRef.current = 15;
   };
 
   const materials = useMemo(
@@ -236,7 +235,7 @@ export function CubeCharacter() {
       </mesh>
       <pointLight
         position={[3, 3, 3]}
-        intensity={draggingRef.current ? 100 : hovered ? 50 : 0}
+        intensity={draggingRef.current ? 150 : hovered ? 80 : 0}
         color={currentChapter === 3 ? "#FF0000" : "#8CBBFF"}
       />
     </group>
