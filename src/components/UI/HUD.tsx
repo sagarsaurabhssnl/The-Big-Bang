@@ -3,7 +3,7 @@
 import { useStoryStore } from "@/lib/store";
 import { CHAPTERS } from "@/lib/story-config";
 import { motion } from "framer-motion";
-import { EyeOff, Eye, Volume2, Info } from "lucide-react";
+import { EyeOff, Eye, Volume2 } from "lucide-react";
 
 export function HUD() {
   const { currentChapter, progress, reducedMotion, toggleReducedMotion } = useStoryStore();
@@ -39,11 +39,6 @@ export function HUD() {
           <div className="space-y-0">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Chapter {currentChapter + 1}</p>
             <p className="text-2xl font-black tracking-tight">{currentChapterData.title}</p>
-          </div>
-          
-          {/* Interaction prompts removed as requested to keep UI clean and intuitive */}
-          <div className="flex items-center space-x-3 opacity-0">
-             <Info size={14} />
           </div>
         </div>
 
