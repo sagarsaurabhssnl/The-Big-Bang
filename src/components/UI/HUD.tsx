@@ -3,10 +3,9 @@
 import { useStoryStore } from "@/lib/store";
 import { CHAPTERS } from "@/lib/story-config";
 import { motion } from "framer-motion";
-import { EyeOff, Eye, Volume2 } from "lucide-react";
 
 export function HUD() {
-  const { currentChapter, progress, reducedMotion, toggleReducedMotion } = useStoryStore();
+  const { currentChapter, progress } = useStoryStore();
   
   const currentChapterData = CHAPTERS[currentChapter];
 
@@ -17,19 +16,6 @@ export function HUD() {
         <div className="space-y-1 pointer-events-none">
           <h1 className="text-2xl font-black tracking-tighter pointer-events-none">THE IDEA</h1>
           <p className="text-[10px] font-bold tracking-[0.2em] opacity-40 uppercase pointer-events-none">A Story of Formation</p>
-        </div>
-        
-        <div className="flex space-x-4 pointer-events-auto">
-          <button 
-            onClick={toggleReducedMotion}
-            className="p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-            title="Toggle Reduced Motion"
-          >
-            {reducedMotion ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-          <button className="p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-            <Volume2 size={18} />
-          </button>
         </div>
       </div>
 

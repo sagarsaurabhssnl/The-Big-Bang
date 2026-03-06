@@ -22,6 +22,7 @@ export function CubeCharacter() {
   const springScale = useRef(1);
   const interactionGlow = useRef(0);
   const spinBoostRef = useRef(0);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const safeSetPointerCapture = (pointerId: number) => {
     try {
@@ -35,15 +36,24 @@ export function CubeCharacter() {
     } catch (e) {}
   };
 
+  const clearHoldTimer = () => {
+    if (holdTimerRef.current) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+  };
+
   const endInteraction = useCallback(() => {
+    clearHoldTimer();
+  
     const pid = activePointerIdRef.current;
     if (pid != null) safeReleasePointerCapture(pid);
-
+  
     activePointerIdRef.current = null;
     draggingRef.current = false;
     setIsPressed(false);
     setInteracting(false);
-  }, [setInteracting, gl]);
+  }, [setInteracting]);
 
   useEffect(() => {
     const onVis = () => { if (document.hidden) endInteraction(); };
@@ -54,18 +64,22 @@ export function CubeCharacter() {
   useFrame((_, delta) => {
     if (!meshRef.current || !cubeRef.current) return;
 
-    const baseSpeed = reducedMotion ? 0.01 : 0.05 + currentChapter * 0.02;
-    const spinBoost = spinBoostRef.current;
+    const baseSpeed = reducedMotion ? 0.006 : 0.025 + currentChapter * 0.012;
+    meshRef.current.rotation.y += delta * (baseSpeed + spinBoostRef.current);
+    meshRef.current.rotation.x += delta * (baseSpeed * 0.18);
 
-    meshRef.current.rotation.y += delta * (baseSpeed + spinBoost);
-    meshRef.current.rotation.x += delta * (baseSpeed * 0.5);
-
-    const decay = draggingRef.current ? 0.98 : 0.92;
+    const decay = draggingRef.current ? 0.94 : 0.88;
     rotationInertia.current.x *= decay;
     rotationInertia.current.y *= decay;
 
     meshRef.current.rotation.y += rotationInertia.current.x;
     meshRef.current.rotation.x += rotationInertia.current.y;
+
+    meshRef.current.rotation.x = THREE.MathUtils.clamp(
+      meshRef.current.rotation.x,
+      -0.9,
+      0.9
+    );
 
     if (spinBoostRef.current > 0) {
       spinBoostRef.current = Math.max(0, spinBoostRef.current * 0.95 - 0.01);
@@ -92,21 +106,28 @@ export function CubeCharacter() {
       cubeRef.current.position.x = THREE.MathUtils.lerp(cubeRef.current.position.x, 0, delta * 10);
     }
   });
+  
 
   const handlePointerDown = (e: any) => {
     e.stopPropagation();
-    console.log("[R3F] cube down", e.pointerId);
-    
+  
     activePointerIdRef.current = e.pointerId;
     draggingRef.current = true;
     safeSetPointerCapture(e.pointerId);
-
+  
     setHovered(false);
-    setIsPressed(true);
     setInteracting(true);
-
+  
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
-    springScale.current = 0.7;
+  
+    // Start drag immediately, but delay the "pressed" visual effect
+    clearHoldTimer();
+    holdTimerRef.current = setTimeout(() => {
+      if (draggingRef.current && activePointerIdRef.current === e.pointerId) {
+        setIsPressed(true);
+        springScale.current = 0.7;
+      }
+    }, 150);
   };
 
   const handlePointerUp = (e: any) => {
@@ -115,16 +136,26 @@ export function CubeCharacter() {
     endInteraction();
   };
 
+
   const handlePointerMove = (e: any) => {
-    if (!draggingRef.current || activePointerIdRef.current !== e.pointerId) return;
-    e.stopPropagation();
-
-    const sensitivity = 0.04;
-    const dx = (e.clientX - lastPointerPos.current.x) * sensitivity;
-    const dy = (e.clientY - lastPointerPos.current.y) * sensitivity;
-
-    rotationInertia.current.x = dx;
-    rotationInertia.current.y = dy;
+    if (!draggingRef.current) return;
+    if (activePointerIdRef.current !== e.pointerId) return;
+  
+    const moveX = e.clientX - lastPointerPos.current.x;
+    const moveY = e.clientY - lastPointerPos.current.y;
+  
+    // If user is actively dragging, cancel the delayed hold-selection effect
+    if (Math.abs(moveX) > 2 || Math.abs(moveY) > 2) {
+      clearHoldTimer();
+    }
+  
+    const sensitivity = reducedMotion ? 0.0035 : 0.008;
+    const dx = moveX * sensitivity;
+    const dy = moveY * sensitivity;
+  
+    rotationInertia.current.x = THREE.MathUtils.lerp(rotationInertia.current.x, dx, 0.35);
+    rotationInertia.current.y = THREE.MathUtils.lerp(rotationInertia.current.y, dy, 0.35);
+  
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
   };
 

@@ -78,15 +78,12 @@ export function StorySections() {
           <p className="text-muted-foreground mb-10 pointer-events-none">
             The journey of creation is infinite.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-none">
+          <div className="flex justify-center pointer-events-none">
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="px-10 py-5 bg-primary text-primary-foreground font-black rounded-xl hover:opacity-90 transition-opacity pointer-events-auto"
+              className="px-10 py-5 bg-black text-white border border-white/20 font-black rounded-xl hover:bg-white/5 transition-all pointer-events-auto active:scale-95"
             >
-              Restart Narrative
-            </button>
-            <button className="px-10 py-5 bg-white/5 border border-white/10 font-black rounded-xl hover:bg-white/10 transition-colors pointer-events-auto">
-              Explore Technicals
+              The end is the beginning
             </button>
           </div>
         </motion.div>
