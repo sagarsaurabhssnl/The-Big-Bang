@@ -51,9 +51,9 @@ export function StorySections() {
             >
               <span className="chapter-number">Experience {i + 1}</span>
               <h2 className="chapter-title">{chapter.title}</h2>
-              <div className="space-y-4">
+              <div className="space-y-4 pointer-events-none">
                 {chapter.narrative.map((line, li) => (
-                  <p key={li} className="chapter-text">{line}</p>
+                  <p key={li} className="chapter-text pointer-events-none">{line}</p>
                 ))}
               </div>
               
@@ -74,8 +74,8 @@ export function StorySections() {
           whileInView={{ opacity: 1, y: 0 }}
           className="glass-panel max-w-2xl pointer-events-none"
         >
-          <h2 className="text-4xl font-black mb-6">Masterpiece Complete.</h2>
-          <p className="text-muted-foreground mb-10">
+          <h2 className="text-4xl font-black mb-6 pointer-events-none">Masterpiece Complete.</h2>
+          <p className="text-muted-foreground mb-10 pointer-events-none">
             The journey of creation is infinite.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-none">
