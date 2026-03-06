@@ -1,1 +1,1 @@
-Jaake ke syllabus padho, yeh sab mein koii faida nhi hai
+Jaake ke syllabus padhoo, yeh sab mein koii faida nhi hai
