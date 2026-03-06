@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -73,20 +72,20 @@ export function StorySections() {
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="glass-panel max-w-2xl pointer-events-auto"
+          className="glass-panel max-w-2xl pointer-events-none"
         >
           <h2 className="text-4xl font-black mb-6">Masterpiece Complete.</h2>
           <p className="text-muted-foreground mb-10">
             The journey of creation is infinite.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-none">
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="px-10 py-5 bg-primary text-primary-foreground font-black rounded-xl hover:opacity-90 transition-opacity"
+              className="px-10 py-5 bg-primary text-primary-foreground font-black rounded-xl hover:opacity-90 transition-opacity pointer-events-auto"
             >
               Restart Narrative
             </button>
-            <button className="px-10 py-5 bg-white/5 border border-white/10 font-black rounded-xl hover:bg-white/10 transition-colors">
+            <button className="px-10 py-5 bg-white/5 border border-white/10 font-black rounded-xl hover:bg-white/10 transition-colors pointer-events-auto">
               Explore Technicals
             </button>
           </div>

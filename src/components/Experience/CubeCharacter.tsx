@@ -1,13 +1,13 @@
-
 "use client";
 
 import { useRef, useState, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { MeshDistortMaterial, MeshTransmissionMaterial } from "@react-three/drei";
 import { useStoryStore } from "@/lib/store";
 
 export function CubeCharacter() {
+  const { gl } = useThree();
   const meshRef = useRef<THREE.Group>(null);
   const cubeRef = useRef<THREE.Mesh>(null);
   const { currentChapter, reducedMotion, setInteracting } = useStoryStore();
@@ -16,7 +16,7 @@ export function CubeCharacter() {
   const [isPressed, setIsPressed] = useState(false);
   const [spinBoost, setSpinBoost] = useState(0);
 
-  // Hyper-responsive state refs for high-frequency updates (avoiding React render cycles for physics)
+  // Interaction refs
   const rotationInertia = useRef({ x: 0, y: 0 });
   const lastPointerPos = useRef({ x: 0, y: 0 });
   const springScale = useRef(1);
@@ -43,15 +43,14 @@ export function CubeCharacter() {
       setSpinBoost(prev => Math.max(0, prev * 0.95 - 0.01));
     }
 
-    // 4. Spring Physics Scaling (Visceral "Squish" feedback)
+    // 4. Spring Physics Scaling
     let targetScale = 1;
     if (isPressed) {
-      targetScale = 0.85; // Immediate compression feedback
+      targetScale = 0.85; 
     } else if (hovered) {
-      targetScale = 1.1; // Magnetic hover feel
+      targetScale = 1.1; 
     }
     
-    // Snappy lerp for "physical" response
     springScale.current = THREE.MathUtils.lerp(springScale.current, targetScale, delta * 20);
     cubeRef.current.scale.setScalar(springScale.current);
 
@@ -65,7 +64,6 @@ export function CubeCharacter() {
     
     // 6. Chapter Specific Micro-Movements
     if (currentChapter === 3 && isPressed) {
-      // Jitter during Fracture
       cubeRef.current.position.x = (Math.random() - 0.5) * 0.05;
     } else {
       cubeRef.current.position.x = THREE.MathUtils.lerp(cubeRef.current.position.x, 0, delta * 10);
@@ -74,26 +72,26 @@ export function CubeCharacter() {
 
   const handlePointerDown = (e: any) => {
     e.stopPropagation();
-    // Capture pointer to track movement even outside the cube's bounds
-    e.target.setPointerCapture(e.pointerId);
+    // Correct way to capture pointer in R3F for global tracking
+    gl.domElement.setPointerCapture(e.pointerId);
+    
     setIsPressed(true);
     setInteracting(true);
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
-    
-    // Immediate tactile feedback: Scale pop
     springScale.current = 0.7; 
   };
 
   const handlePointerUp = (e: any) => {
-    e.target.releasePointerCapture(e.pointerId);
+    gl.domElement.releasePointerCapture(e.pointerId);
     setIsPressed(false);
+    setInteracting(false);
   };
 
   const handlePointerMove = (e: any) => {
     if (isPressed) {
-      // Significantly increased sensitivity for "Hyper-responsive" feel
-      const dx = (e.clientX - lastPointerPos.current.x) * 0.04;
-      const dy = (e.clientY - lastPointerPos.current.y) * 0.04;
+      const sensitivity = 0.04;
+      const dx = (e.clientX - lastPointerPos.current.x) * sensitivity;
+      const dy = (e.clientY - lastPointerPos.current.y) * sensitivity;
       
       rotationInertia.current.x = dx;
       rotationInertia.current.y = dy;
@@ -103,7 +101,7 @@ export function CubeCharacter() {
   };
 
   const handleDoubleClick = () => {
-    setSpinBoost(10); // Celebration spin
+    setSpinBoost(10);
   };
 
   const materials = useMemo(() => ({
@@ -139,11 +137,9 @@ export function CubeCharacter() {
       onPointerUp={handlePointerUp}
       onPointerMove={handlePointerMove}
       onPointerOver={() => setHovered(true)}
-      onPointerOut={() => {
-        setHovered(false);
-        setIsPressed(false);
-      }}
+      onPointerOut={() => setHovered(false)}
       onDoubleClick={handleDoubleClick}
+      onPointerCancel={handlePointerUp}
     >
       <mesh ref={cubeRef} castShadow receiveShadow>
         <boxGeometry args={[2.2, 2.2, 2.2]} />
@@ -176,7 +172,6 @@ export function CubeCharacter() {
         {currentChapter === 5 && <primitive object={materials.artifact} attach="material" />}
       </mesh>
 
-      {/* Reactive Local Light */}
       <pointLight 
         position={[3, 3, 3]} 
         intensity={isPressed ? 100 : (hovered ? 50 : 0)} 

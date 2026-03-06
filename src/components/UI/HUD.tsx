@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useStoryStore } from "@/lib/store";
@@ -14,7 +13,7 @@ export function HUD() {
   return (
     <div className="fixed inset-0 pointer-events-none z-50 flex flex-col justify-between p-6 md:p-10">
       {/* Top Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start pointer-events-none">
         <div className="space-y-1">
           <h1 className="text-2xl font-black tracking-tighter">THE IDEA</h1>
           <p className="text-[10px] font-bold tracking-[0.2em] opacity-40 uppercase">A Story of Formation</p>
@@ -35,7 +34,7 @@ export function HUD() {
       </div>
 
       {/* Bottom Footer */}
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-end pointer-events-none">
         <div className="max-w-xs space-y-4">
           <div className="space-y-0">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Chapter {currentChapter + 1}</p>

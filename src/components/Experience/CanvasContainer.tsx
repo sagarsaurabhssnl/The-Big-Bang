@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Canvas } from "@react-three/fiber";
@@ -11,15 +10,18 @@ export function CanvasContainer() {
   const { currentChapter } = useStoryStore();
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-auto bg-[#050505]">
+    <div 
+      className="fixed inset-0 z-0 pointer-events-auto touch-none bg-[#050505]"
+      style={{ touchAction: 'none' }}
+    >
       <Canvas 
         shadows 
         dpr={[1, 2]} 
         gl={{ antialias: true, stencil: false, depth: true }}
+        eventPrefix="client"
+        camera={{ position: [0, 0, 8], fov: 35 }}
       >
         <Suspense fallback={null}>
-          <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={35} />
-          
           <ambientLight intensity={0.2} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
           <pointLight position={[-10, -10, -10]} color="#8CBBFF" intensity={1} />
