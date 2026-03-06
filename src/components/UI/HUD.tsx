@@ -41,11 +41,9 @@ export function HUD() {
             <p className="text-2xl font-black tracking-tight">{currentChapterData.title}</p>
           </div>
           
-          <div className="flex items-center space-x-3 pointer-events-auto">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-              <Info size={14} className="text-primary" />
-            </div>
-            <p className="text-xs font-bold opacity-60 italic">{currentChapterData.prompt}</p>
+          {/* Interaction prompts removed as requested to keep UI clean and intuitive */}
+          <div className="flex items-center space-x-3 opacity-0">
+             <Info size={14} />
           </div>
         </div>
 

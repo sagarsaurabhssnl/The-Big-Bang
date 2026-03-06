@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { MeshDistortMaterial, MeshTransmissionMaterial, Float } from "@react-three/drei";
 import { useStoryStore } from "@/lib/store";
@@ -9,54 +9,68 @@ import { useStoryStore } from "@/lib/store";
 export function CubeCharacter() {
   const meshRef = useRef<THREE.Group>(null);
   const cubeRef = useRef<THREE.Mesh>(null);
-  const { currentChapter, progress, reducedMotion, setInteracting } = useStoryStore();
+  const { viewport } = useThree();
+  const { currentChapter, reducedMotion, setInteracting } = useStoryStore();
   
   const [hovered, setHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [spinBoost, setSpinBoost] = useState(0);
 
-  // Rotation logic
-  const targetRotation = useRef({ x: 0, y: 0 });
-  const currentRotation = useRef({ x: 0, y: 0 });
+  // Advanced Interaction State
+  const rotationInertia = useRef({ x: 0, y: 0 });
+  const targetScale = useRef(1);
+  const pointerPos = useRef({ x: 0, y: 0 });
   const lastPointerPos = useRef({ x: 0, y: 0 });
 
   useFrame((state, delta) => {
     if (!meshRef.current || !cubeRef.current) return;
 
-    // Base continuous rotation
-    const baseRotationSpeed = reducedMotion ? 0.05 : 0.2;
-    meshRef.current.rotation.y += delta * (baseRotationSpeed + spinBoost);
-    meshRef.current.rotation.x += delta * (baseRotationSpeed * 0.5);
+    // 1. Base Continuous Idle Rotation
+    const baseSpeed = reducedMotion ? 0.05 : 0.15;
+    meshRef.current.rotation.y += delta * (baseSpeed + spinBoost);
+    meshRef.current.rotation.x += delta * (baseSpeed * 0.4);
 
-    // Smoothly decay spin boost (from double click)
+    // 2. Inertia Decay (smoothly slow down after user interaction)
+    rotationInertia.current.x *= 0.92;
+    rotationInertia.current.y *= 0.92;
+    
+    meshRef.current.rotation.y += rotationInertia.current.x;
+    meshRef.current.rotation.x += rotationInertia.current.y;
+
+    // 3. Spin Boost Decay (from double clicks)
     if (spinBoost > 0) {
-      setSpinBoost(prev => Math.max(0, prev * 0.95 - 0.01));
+      setSpinBoost(prev => Math.max(0, prev * 0.98 - 0.02));
     }
 
-    // Interactive inertia rotation
-    currentRotation.current.x = THREE.MathUtils.lerp(currentRotation.current.x, targetRotation.current.x, 0.1);
-    currentRotation.current.y = THREE.MathUtils.lerp(currentRotation.current.y, targetRotation.current.y, 0.1);
-    
-    meshRef.current.rotation.x += currentRotation.current.y;
-    meshRef.current.rotation.y += currentRotation.current.x;
+    // 4. Responsive Scaling
+    // Calculate target scale based on chapter and press state
+    let baseScale = 1;
+    if (currentChapter === 2) { // Pressure Chapter
+      baseScale = isPressed ? 0.7 : 1.1; // More dramatic compression
+    } else if (isPressed) {
+      baseScale = 0.9; // Standard press feedback
+    } else if (hovered) {
+      baseScale = 1.05; // Hover feedback
+    }
 
-    // Decaying the interaction offset
-    targetRotation.current.x *= 0.9;
-    targetRotation.current.y *= 0.9;
+    // Lerp scale for smoothness
+    const lerpFactor = delta * 10;
+    cubeRef.current.scale.lerp(new THREE.Vector3(baseScale, baseScale, baseScale), lerpFactor);
 
-    // Chapter 3: Pressure (Hold logic)
-    if (currentChapter === 2) {
-      const scaleTarget = isPressed ? 0.8 : 1.0;
-      cubeRef.current.scale.lerp(new THREE.Vector3(1.2, 1.2, scaleTarget), 0.1);
-    } else if (currentChapter === 3) {
-       // Chapter 4: Fracture (Distortion response)
-       cubeRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
-    } else {
-      cubeRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+    // 5. Dynamic Material Adjustments
+    if (currentChapter === 3) { // Fracture
+      // Add subtle shake if pressed
+      if (isPressed) {
+        cubeRef.current.position.x = (Math.random() - 0.5) * 0.05;
+        cubeRef.current.position.y = (Math.random() - 0.5) * 0.05;
+      } else {
+        cubeRef.current.position.set(0, 0, 0);
+      }
     }
   });
 
   const handlePointerDown = (e: any) => {
+    e.stopPropagation();
     setIsPressed(true);
     setInteracting(true);
     lastPointerPos.current = { x: e.clientX, y: e.clientY };
@@ -67,12 +81,12 @@ export function CubeCharacter() {
   };
 
   const handlePointerMove = (e: any) => {
-    if (isPressed && !reducedMotion) {
-      const deltaX = (e.clientX - lastPointerPos.current.x) * 0.01;
-      const deltaY = (e.clientY - lastPointerPos.current.y) * 0.01;
+    if (isPressed) {
+      const dx = (e.clientX - lastPointerPos.current.x) * 0.005;
+      const dy = (e.clientY - lastPointerPos.current.y) * 0.005;
       
-      targetRotation.current.x = deltaX;
-      targetRotation.current.y = deltaY;
+      rotationInertia.current.x = dx;
+      rotationInertia.current.y = dy;
       
       lastPointerPos.current = { x: e.clientX, y: e.clientY };
     }
@@ -85,26 +99,45 @@ export function CubeCharacter() {
   };
 
   const handleDoubleClick = () => {
-    if (currentChapter === 5) {
-      setSpinBoost(5); // Big celebratory spin for Artifact
+    if (currentChapter === 5) { // Artifact
+      setSpinBoost(10); // Massive celebratory spin
+    } else {
+      setSpinBoost(4); // General responsive spin
     }
   };
 
   const handleClick = () => {
-    if (currentChapter === 3) {
-      // Fracture interaction: temporary scale pop
+    if (currentChapter === 3) { // Fracture interaction
+      // Temporary expansion "pop"
       if (cubeRef.current) {
-        cubeRef.current.scale.set(1.5, 1.5, 1.5);
+        cubeRef.current.scale.set(1.4, 1.4, 1.4);
       }
     }
   };
 
-  // Materials for different chapters
+  // Pre-compiled materials for performance and clarity
   const materials = useMemo(() => ({
-    origin: new THREE.MeshStandardMaterial({ color: "#222", roughness: 0.9, metalness: 0.1 }),
-    signal: new THREE.MeshStandardMaterial({ color: "#111", emissive: "#8CBBFF", emissiveIntensity: 2, roughness: 0.5 }),
-    pressure: new THREE.MeshStandardMaterial({ color: "#111", roughness: 0.05, metalness: 0.9 }),
-    artifact: new THREE.MeshPhysicalMaterial({ color: "#ffd700", metalness: 1, roughness: 0.1, clearcoat: 1 })
+    origin: new THREE.MeshStandardMaterial({ color: "#111", roughness: 1, metalness: 0 }),
+    signal: new THREE.MeshStandardMaterial({ 
+      color: "#050505", 
+      emissive: "#8CBBFF", 
+      emissiveIntensity: 4, 
+      roughness: 0.2 
+    }),
+    pressure: new THREE.MeshStandardMaterial({ 
+      color: "#0a0a0a", 
+      roughness: 0.1, 
+      metalness: 1.0,
+      envMapIntensity: 2
+    }),
+    artifact: new THREE.MeshPhysicalMaterial({ 
+      color: "#ffd700", 
+      metalness: 1, 
+      roughness: 0.05, 
+      clearcoat: 1,
+      clearcoatRoughness: 0.02,
+      reflectivity: 1
+    })
   }), []);
 
   return (
@@ -126,32 +159,36 @@ export function CubeCharacter() {
         {currentChapter === 2 && <primitive object={materials.pressure} attach="material" />}
         {currentChapter === 3 && (
           <MeshDistortMaterial 
-            color="#FF8C8C" 
-            speed={2} 
-            distort={0.4} 
+            color="#FF4D4D" 
+            speed={4} 
+            distort={0.6} 
             radius={1}
-            emissive="#FF8C8C"
-            emissiveIntensity={0.5}
+            emissive="#FF0000"
+            emissiveIntensity={0.8}
           />
         )}
         {currentChapter === 4 && (
           <MeshTransmissionMaterial 
             backside 
-            samples={4} 
-            thickness={2} 
-            chromaticAberration={0.05} 
-            anisotropy={0.1} 
-            distortion={0.1}
+            samples={6} 
+            thickness={1.5} 
+            chromaticAberration={0.1} 
+            anisotropy={0.2} 
+            distortion={0.2}
+            distortionScale={0.5}
             color="#A0E9FF"
+            transmission={1}
           />
         )}
         {currentChapter === 5 && <primitive object={materials.artifact} attach="material" />}
       </mesh>
 
-      {/* Dynamic light following interactions */}
-      <Float speed={5} rotationIntensity={2} floatIntensity={1}>
-        <pointLight position={[2, 2, 2]} intensity={hovered ? 30 : 15} color="#8CBBFF" />
-      </Float>
+      {/* Interactive Light Feedback */}
+      <pointLight 
+        position={[3, 3, 3]} 
+        intensity={hovered ? 50 : 20} 
+        color={isPressed ? "#FFFFFF" : "#8CBBFF"} 
+      />
     </group>
   );
 }
