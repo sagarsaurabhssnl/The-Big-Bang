@@ -26,7 +26,6 @@ export function StorySections() {
           const p = self.progress;
           setProgress(p);
           
-          // Map progress to chapters
           const chapterIndex = Math.min(
             Math.floor(p * CHAPTERS.length),
             CHAPTERS.length - 1
@@ -78,7 +77,6 @@ export function StorySections() {
         >
           <h2 className="text-4xl font-black mb-6">Masterpiece Complete.</h2>
           <p className="text-muted-foreground mb-10">
-            You've witnessed the evolution from a silent thought to a refined artifact. 
             The journey of creation is infinite.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
