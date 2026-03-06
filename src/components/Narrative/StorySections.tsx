@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -74,14 +75,14 @@ export function StorySections() {
           whileInView={{ opacity: 1, y: 0 }}
           className="glass-panel max-w-2xl pointer-events-none"
         >
-          <h2 className="text-4xl font-black mb-6 pointer-events-none">Masterpiece Complete.</h2>
+          <h2 className="text-4xl font-black mb-6 pointer-events-none">The Story is Formed.</h2>
           <p className="text-muted-foreground mb-10 pointer-events-none">
-            The journey of creation is infinite.
+            What was once a whisper is now complete.
           </p>
           <div className="flex justify-center pointer-events-none">
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="px-10 py-5 bg-black text-white border border-white/20 font-black rounded-xl hover:bg-white/5 transition-all pointer-events-auto active:scale-95"
+              className="px-10 py-5 bg-black text-white border border-white/20 font-black rounded-xl hover:bg-white/10 transition-all pointer-events-auto active:scale-95 shadow-2xl"
             >
               The end is the beginning
             </button>

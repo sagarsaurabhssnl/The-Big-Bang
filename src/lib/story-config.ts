@@ -1,6 +1,6 @@
 
 export type Chapter = {
-  id: number;
+  id: string | number;
   title: string;
   narrative: string[];
   prompt: string;
@@ -9,69 +9,69 @@ export type Chapter = {
 
 export const CHAPTERS: Chapter[] = [
   {
-    id: 0,
+    id: "origin",
     title: "Origin",
     narrative: [
-      "In the beginning, there was only the void.",
-      "A single point of focus. A silent, unformed thought.",
-      "Waiting for the first spark of intention."
+      "Before form, there was only quiet potential.",
+      "Not absence — but something waiting to begin.",
+      "A shape rests at the edge of becoming."
     ],
-    prompt: "Hover to illuminate the potential.",
+    prompt: "Gently touch to awaken the potential.",
     color: "#ffffff"
   },
   {
-    id: 1,
+    id: "signal",
     title: "Signal",
     narrative: [
-      "Energy begins to flow.",
-      "Logic gates align as the circuitry of life awakens.",
-      "The idea starts to speak in pulses of light."
+      "The silence shifts.",
+      "A faint rhythm moves through the stillness.",
+      "The first trace of order begins to gather."
     ],
-    prompt: "Move your cursor to guide the flow.",
+    prompt: "Guide the signal with your touch.",
     color: "#8CBBFF"
   },
   {
-    id: 2,
+    id: "pressure",
     title: "Pressure",
     narrative: [
-      "Ambition demands structure.",
-      "The weight of expectation compresses the core.",
-      "Strength is forged in the density of focus."
+      "Energy collects beneath the surface.",
+      "The idea grows dense with intention.",
+      "What is forming can no longer remain contained."
     ],
-    prompt: "Hold your breath as the form hardens.",
+    prompt: "Hold close to feel the building force.",
     color: "#C166ED"
   },
   {
-    id: 3,
+    id: "fracture",
     title: "Fracture",
     narrative: [
-      "Growth is never linear.",
-      "Tension pulls at the seams until the surface yields.",
-      "Within the cracks, we find the truth of the inner light."
+      "The stillness breaks.",
+      "Not destruction — but release.",
+      "From the split, motion is born."
     ],
-    prompt: "Click to release the tension.",
+    prompt: "A single touch to release the light.",
     color: "#FF8C8C"
   },
   {
-    id: 4,
+    id: "alignment",
     title: "Alignment",
     narrative: [
-      "The pieces find their place.",
-      "Discord resolves into a clear, transparent vision.",
-      "A synthesis of glass and steel, perfectly poised."
+      "Fragments begin to recognize their place.",
+      "Motion settles into direction.",
+      "Structure emerges from the scatter."
     ],
-    prompt: "Drag to find the center.",
+    prompt: "Drag to find the perfect center.",
     color: "#A0E9FF"
   },
   {
-    id: 5,
+    id: "artifact",
     title: "Artifact",
     narrative: [
-      "The journey is complete.",
-      "A masterwork of intention, ready for the world.",
-      "What started as a point is now an infinite monument."
+      "The form stabilizes.",
+      "Light finds its edges.",
+      "What began as a whisper now stands complete."
     ],
-    prompt: "Double click to celebrate the creation.",
+    prompt: "Double tap to celebrate the creation.",
     color: "#FFD700"
   }
 ];
