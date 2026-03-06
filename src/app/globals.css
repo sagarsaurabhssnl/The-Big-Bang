@@ -5,26 +5,11 @@
 
 @layer base {
   :root {
-    --background: 261 19% 15%;
+    --background: 261 19% 5%;
     --foreground: 0 0% 98%;
-    --card: 261 19% 18%;
-    --card-foreground: 0 0% 98%;
-    --popover: 261 19% 15%;
-    --popover-foreground: 0 0% 98%;
     --primary: 280 78% 66%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 261 10% 25%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 261 10% 20%;
-    --muted-foreground: 261 10% 70%;
     --accent: 216 100% 77%;
-    --accent-foreground: 216 100% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 261 15% 25%;
-    --input: 261 15% 25%;
-    --ring: 280 78% 66%;
-    --radius: 0.75rem;
+    --border: 261 15% 15%;
   }
 }
 
@@ -33,11 +18,40 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
     overflow-x: hidden;
   }
 }
 
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .canvas-container {
-  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+.narrative-panel {
+  @apply min-h-screen flex flex-col justify-center px-8 md:px-24 py-32;
+}
+
+.glass-panel {
+  @apply bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-8;
+}
+
+.chapter-number {
+  @apply text-sm font-black uppercase tracking-[0.3em] text-primary mb-2 opacity-60;
+}
+
+.chapter-title {
+  @apply text-5xl md:text-8xl font-black mb-6 tracking-tighter leading-[0.9];
+}
+
+.chapter-text {
+  @apply text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed font-medium;
 }

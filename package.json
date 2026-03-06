@@ -46,6 +46,7 @@
     "firebase": "^11.9.1",
     "framer-motion": "^12.4.2",
     "genkit": "^1.28.0",
+    "gsap": "^3.12.5",
     "lucide-react": "^0.475.0",
     "next": "15.5.9",
     "patch-package": "^8.0.0",
@@ -57,7 +58,8 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.173.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -73,6 +75,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "@types/react": "^19.2.1",
-    "@types/react-dom": "^19.2.1"
+    "@types/react-dom": "^19.2.1",
+    "@react-three/fiber": "9.0.0-rc.6"
   }
 }

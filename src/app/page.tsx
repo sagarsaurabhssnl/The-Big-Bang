@@ -1,18 +1,12 @@
 
-import { Navigation } from "@/components/Navigation";
-import { Hero } from "@/components/Hero";
-import { Features } from "@/components/Features";
-import { CTA } from "@/components/CTA";
-import { Footer } from "@/components/Footer";
+import { HUD } from "@/components/UI/HUD";
+import { StorySections } from "@/components/Narrative/StorySections";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
-      <Navigation />
-      <Hero />
-      <Features />
-      <CTA />
-      <Footer />
+    <main className="relative min-h-screen">
+      <HUD />
+      <StorySections />
     </main>
   );
 }
