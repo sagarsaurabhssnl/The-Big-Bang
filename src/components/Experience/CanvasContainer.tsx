@@ -33,14 +33,19 @@ export function CanvasContainer() {
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.2} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
-          <pointLight position={[-10, -10, -10]} color="#8CBBFF" intensity={1} />
+          {/* Main Key Light */}
+          <spotLight position={[10, 10, 10]} angle={0.2} penumbra={1} intensity={3} castShadow />
+          {/* Rim / Back Light */}
+          <pointLight position={[-10, -10, -10]} color="#8CBBFF" intensity={1.5} />
+          {/* Fill Light */}
+          <directionalLight position={[0, -5, 5]} intensity={0.5} color="#C166ED" />
 
           <CubeCharacter />
 
-          <ContactShadows position={[0, -3.5, 0]} opacity={0.4} scale={20} blur={2.4} far={4.5} />
-          {/* Increased star speed for more background motion */}
-          <Stars radius={100} depth={50} count={5000} factor={6} saturation={0} fade speed={4} />
+          <ContactShadows position={[0, -3.5, 0]} opacity={0.6} scale={20} blur={2.5} far={4.5} />
+          <Stars radius={100} depth={50} count={6000} factor={7} saturation={0} fade speed={4} />
+          
+          {/* Environment provides the vital reflections for Physical Materials */}
           <Environment preset="city" />
         </Suspense>
       </Canvas>

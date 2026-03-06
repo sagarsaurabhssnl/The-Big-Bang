@@ -61,10 +61,10 @@ export function CubeCharacter() {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [endInteraction]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!meshRef.current || !cubeRef.current) return;
 
-    // Increased base rotation velocity as requested
+    // 1) Rotational Logic
     const baseSpeed = reducedMotion ? 0.02 : 0.08 + currentChapter * 0.03;
     meshRef.current.rotation.y += delta * (baseSpeed + spinBoostRef.current);
     meshRef.current.rotation.x += delta * (baseSpeed * 0.25);
@@ -86,6 +86,7 @@ export function CubeCharacter() {
       spinBoostRef.current = Math.max(0, spinBoostRef.current * 0.95 - 0.01);
     }
 
+    // 2) Tactile Scaling
     let targetScale = 1;
     if (draggingRef.current) targetScale = 0.85;
     else if (hovered) targetScale = 1.1;
@@ -93,18 +94,24 @@ export function CubeCharacter() {
     springScale.current = THREE.MathUtils.lerp(springScale.current, targetScale, delta * 20);
     cubeRef.current.scale.setScalar(springScale.current);
 
+    // 3) Material & Glow Dynamics
     const targetGlow = draggingRef.current ? 5 : hovered ? 2 : 0;
     interactionGlow.current = THREE.MathUtils.lerp(interactionGlow.current, targetGlow, delta * 15);
 
     const mat = cubeRef.current.material as any;
     if (mat && "emissiveIntensity" in mat) {
-      mat.emissiveIntensity = 1 + interactionGlow.current;
+      // Add a natural pulse for the "Signal" chapter
+      const pulse = currentChapter === 1 ? Math.sin(state.clock.elapsedTime * 4) * 0.5 + 1 : 1;
+      mat.emissiveIntensity = (1 + interactionGlow.current) * pulse;
     }
 
+    // 4) Chapter-Specific Positional Jitter (Fracture)
     if (currentChapter === 3 && draggingRef.current) {
       cubeRef.current.position.x = (Math.random() - 0.5) * 0.05;
+      cubeRef.current.position.y = (Math.random() - 0.5) * 0.05;
     } else {
       cubeRef.current.position.x = THREE.MathUtils.lerp(cubeRef.current.position.x, 0, delta * 10);
+      cubeRef.current.position.y = THREE.MathUtils.lerp(cubeRef.current.position.y, 0, delta * 10);
     }
   });
   
@@ -136,7 +143,6 @@ export function CubeCharacter() {
     endInteraction();
   };
 
-
   const handlePointerMove = (e: any) => {
     if (!draggingRef.current) return;
     if (activePointerIdRef.current !== e.pointerId) return;
@@ -148,7 +154,7 @@ export function CubeCharacter() {
       clearHoldTimer();
     }
   
-    const sensitivity = reducedMotion ? 0.005 : 0.012;
+    const sensitivity = reducedMotion ? 0.005 : 0.015;
     const dx = moveX * sensitivity;
     const dy = moveY * sensitivity;
   
@@ -165,26 +171,35 @@ export function CubeCharacter() {
 
   const materials = useMemo(
     () => ({
-      origin: new THREE.MeshStandardMaterial({ color: "#080808", roughness: 0.9, metalness: 0.1 }),
-      signal: new THREE.MeshStandardMaterial({
+      origin: new THREE.MeshPhysicalMaterial({ 
+        color: "#080808", 
+        roughness: 0.9, 
+        metalness: 0.1,
+        reflectivity: 0.1 
+      }),
+      signal: new THREE.MeshPhysicalMaterial({
         color: "#020202",
         emissive: "#8CBBFF",
         emissiveIntensity: 1,
-        roughness: 0.1,
+        roughness: 0.2,
+        metalness: 0.5,
       }),
-      pressure: new THREE.MeshStandardMaterial({
-        color: "#050505",
-        roughness: 0,
-        metalness: 1.0,
+      pressure: new THREE.MeshPhysicalMaterial({
+        color: "#1a0033",
+        roughness: 0.05,
+        metalness: 0.9,
         emissive: "#C166ED",
         emissiveIntensity: 0.5,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1,
       }),
       artifact: new THREE.MeshPhysicalMaterial({
         color: "#ffd700",
-        metalness: 1,
-        roughness: 0.02,
-        clearcoat: 1,
-        reflectivity: 1,
+        metalness: 1.0,
+        roughness: 0.05,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.02,
+        reflectivity: 1.0,
         emissive: "#FFA500",
         emissiveIntensity: 0.2,
       }),
@@ -212,30 +227,31 @@ export function CubeCharacter() {
         {currentChapter === 3 && (
           <MeshDistortMaterial
             color="#FF4D4D"
-            speed={6}
-            distort={0.6}
+            speed={8}
+            distort={0.8}
             radius={1}
             emissive="#FF0000"
-            emissiveIntensity={1}
+            emissiveIntensity={2}
           />
         )}
         {currentChapter === 4 && (
           <MeshTransmissionMaterial
             backside
-            samples={8}
-            thickness={2}
-            chromaticAberration={0.2}
+            samples={12}
+            thickness={3}
+            chromaticAberration={0.3}
             anisotropy={0.5}
-            distortion={0.3}
+            distortion={0.4}
             color="#A0E9FF"
             transmission={1}
+            ior={1.5}
           />
         )}
         {currentChapter === 5 && <primitive object={materials.artifact} attach="material" />}
       </mesh>
       <pointLight
         position={[3, 3, 3]}
-        intensity={draggingRef.current ? 150 : hovered ? 80 : 0}
+        intensity={draggingRef.current ? 180 : hovered ? 100 : 0}
         color={currentChapter === 3 ? "#FF0000" : "#8CBBFF"}
       />
     </group>
